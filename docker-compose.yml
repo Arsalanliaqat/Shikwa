@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  ganachecli:
+    container_name: ganachecli
+    build:
+      context: ./ganache
+    ports:
+      - 8545:8545
+    networks: 
+      - app_net
+  
+  node_frontend:
+    container_name: frontend
+    build:
+      context: frontend
+    command: >
+      sh -c "npm start"
+    ports:
+      - "4200:4200"
+    networks:
+      - app_net
+  
+  node_backend:
+    container_name: backend
+    build:
+      context: shikwa_backend
+    command: >
+      sh -c "truffle compile &&
+             truffle migrate &&
+             cd backend &&
+             npm start"
+    ports:
+      - 3000:3000
+    environment:
+      MYSQL_HOST: shikwa.mysql
+      MYSQL_PORT: 3306
+    depends_on:
+      - mysql
+    networks:
+      - app_net
+    volumes: 
+      - /uploads:/backend/uploads
+    
+  mysql:
+    container_name: shikwa.mysql
+    build:
+        context: ./database
+    restart: always
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_ROOT_PASSWORD: "ghaffar"
+      MYSQL_DATABASE: "shikwa_db"
+    ports:
+      - "3306:3306"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge

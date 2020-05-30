@@ -1,0 +1,121 @@
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col">
+              <h4 class="card-title"> All Reports </h4>
+            </div>
+            <div class="col" style="text-align: right;">
+              <form class="searchbox" (submit)="searchRecords()">
+                <div class="input-group no-border">
+                  <input type="text" name="searchField" [(ngModel)]="searchField" class="form-control"
+                    placeholder="Search...">
+                  <div class="input-group-append">
+                    <div (click)="searchRecords()" class="input-group-text">
+                      <i class="now-ui-icons ui-1_zoom-bold"></i>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div *ngIf="this.searchMode" class="mb-5">
+            <form class="searchtag" (submit)="searchRecords()">
+              <div class="input-group no-border">
+                <span class="form-control redbox">{{searchKeyword}}</span>
+                <div class="input-group-append">
+                  <div (click)="clearSearch()" class="input-group-text redbox">
+                    <i class="now-ui-icons ui-1_simple-remove redbox"></i>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="!products" class="d-flex justify-content-center">
+            <div class="loader"></div>
+          </div>
+          <div *ngIf="products">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class=" text-primary">
+                  <th style="width: 15%" class="text-center">#</th>
+                  <th style="width: 30%">Product Brand</th>
+                  <th style="width: 30%">Product Name</th>
+                  <th style="width: 15%">Details</th>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let product of products | paginate: { currentPage: currentPage, itemsPerPage: itemsPerPage };
+                  let i = index">
+                    <td class="text-center">{{ (itemsPerPage * (currentPage - 1) + i) + 1 }}</td>
+                    <td class="tabbrand">{{product.productBrand}}</td>
+                    <td class="tabname">{{product.productName}}</td>
+                    <td class="tablink"><a class="btn btn-danger" style="color:white"
+                        (click)="open(content,product)">View
+                        Details </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="text-align: center;">
+              <pagination-controls (pageChange)="currentPage=$event" maxSize="13"></pagination-controls>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-body">
+    <img *ngIf="detailsObject.imagePath" src={{detailsObject.imagePath}} class="img-thumbnail" alt="Product image">
+    <img *ngIf="!detailsObject.imagePath" src='../../assets/img/default.png' class="img-thumbnail" alt="Product image">
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+          <td class="cell-data left">Product Brand</td>
+          <td class="cell-data">{{detailsObject.productBrand}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Product Name</td>
+          <td class="cell-data">{{detailsObject.productName}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Product Model</td>
+          <td class="cell-data">{{detailsObject.productModel}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Product Category</td>
+          <td class="cell-data">{{detailsObject.productCategory}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Country of Origin</td>
+          <td class="cell-data">{{detailsObject.countryOrigin}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">City of Origin</td>
+          <td class="cell-data">{{detailsObject.cityOrigin}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Risk Type</td>
+          <td class="cell-data">{{detailsObject.riskType}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Transaction Hash</td>
+          <td class="cell-data">{{detailsObject.transactionHash}}</td>
+        </tr>
+        <tr>
+          <td class="cell-data left">Description</td>
+          <td class="cell-data">{{detailsObject.description}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>

@@ -1,0 +1,159 @@
+<div class="panel-header panel-header-sm">
+</div>
+
+<div class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div *ngIf="!this.selectedImage">
+                <dropzone class="dropzone-container" [config]="config" [disabled]="disabled" fxLayout="row" fxLayoutAlign="start strech" fxFlex="auto" [message]="'Click or drag images here to upload'" (init)="onUploadInit($event)" (error)="onUploadError($event)" (success)="onUploadSuccess($event)"></dropzone>
+            </div>
+
+            <div *ngIf="this.selectedImage">
+
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-success" (click)="scan()">Scan</button>
+                    <button class="btn btn-dark" (click)="rotateLeft()">Rotate left</button>
+                    <button class="btn btn-dark" (click)="rotateRight()">Rotate right</button>
+                    <button class="btn btn-dark" (click)="flipHorizontal()">Flip horizontal</button>
+                    <button class="btn btn-dark" (click)="flipVertical()">Flip vertical</button>
+                    <button class="btn btn-dark" (click)="zoomOut()">Zoom -</button>
+                    <button class="btn btn-dark" (click)="zoomIn()">Zoom +</button>
+                    <button class="btn btn-danger" (click)="resetImage()">Reset image</button>
+                    <button class="btn btn-danger" (click)="cancel()">Cancel</button>
+                </div>
+
+                <image-cropper [imageFile]="selectedImage" [maintainAspectRatio]="false" [transform]="transform" [canvasRotation]="canvasRotation" [imageQuality]="100" format="png" (imageCropped)="imageCropped($event)">
+                </image-cropper>
+
+                <div class="d-flex justify-content-center mt-3">
+                    <p style="color: red;">Please crop the product name or model number.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-12 d-flex justify-content-center">
+            <p>OR</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-center">
+            <button class="btn btn-lg btn-danger" (click)="this.show='manual';open(content)">Search Manually</button>
+        </div>
+    </div>
+</div>
+
+<ng-template #content let-modal>
+    <div *ngIf="show === 'loading'">
+        <div class="modal-body loader-view d-flex justify-content-center">
+            <div style="margin: auto;">
+                <div class="row d-flex justify-content-center mb-2">
+                    <div class="loader"></div>
+                </div>
+                <div class="row mt-2">
+                    <small style="color: red;">{{currentStatus}}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="show === 'manual'">
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal">Search Product</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+        </div>
+        <div class="modal-body">
+            <form #f="ngForm" (submit)="searchProduct()">
+                <div class="form-group">
+                    <label>Search Using</label>
+                    <select class="form-control" name="method" [(ngModel)]="method" (change)='onMethodChange(method)' required>
+            <option value="model" [selected]="show === 'manual'">Product Model</option>
+            <option value="name">Product Name</option>
+          </select>
+                </div>
+                <div class="form-group">
+                    <label>{{formInputItem}}</label>
+                    <input type="text" class="form-control" name="product" [(ngModel)]="product" value="{{product}}" placeholder="{{formInputPlaceholder}}">
+                </div>
+                <div class="form-group mt-1" style="padding: 1rem;">
+                    <div class="d-flex justify-content-center">
+                        <button (change)="searchProduct()" type="submit" class="btn btn-danger">Search</button>
+                    </div>
+                </div>
+            </form>
+            <div *ngIf="searchError" style="color:red; text-align: center;">
+                <small>{{searchError}}</small>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="show === 'result'">
+        <div class="modal-header">
+            <button class="modal-title btn btn-danger" (click)="goBackToSearch()">Go Back</button>
+            <h4 class="modal-title" id="modal">Result</h4>
+            <button class="modal-title btn btn-danger" (click)="report()">Report</button>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="!searchResult.length">
+                <div class="row d-flex justify-content-center m-10">
+                    <p>Nothing Found!</p>
+                </div>
+                <div class="row d-flex justify-content-center m-10">
+                    <button class="btn btn-danger" (click)="goBackToSearch()">Go Back</button>
+                </div>
+            </div>
+            <div class="border" *ngFor="let response of searchResult; let index=index;">
+                <div class="row">
+                    <div class="col">
+                        <div *ngIf="response.valid === 'valid'">
+                            <div class="row d-flex justify-content-center">
+                                <i class="fas fa-check-circle fa-4x" style="color:green"></i> <br />
+                            </div>
+                            <div class="row d-flex justify-content-center mt-2">
+                                <p style="color:green">Valid</p>
+                            </div>
+                        </div>
+                        <div *ngIf="response.valid === 'invalid'">
+                            <div class="row d-flex justify-content-center">
+                                <i class="fas fa-times-circle fa-4x" style="color:red"></i> <br />
+                            </div>
+                            <div class="row d-flex justify-content-center mt-2">
+                                <p style="color:red">Invalid</p>
+                            </div>
+                        </div>
+                        <div *ngIf="response.valid === 'dangerous'">
+                            <div class="row d-flex justify-content-center">
+                                <i class="fas fa-exclamation-circle fa-4x" style="color:red"></i> <br />
+                            </div>
+                            <div class="row d-flex justify-content-center mt-2">
+                                <p style="color:red">Dangerous</p>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-center mt-2">
+                            <p class="details"><span style="font-weight: bold;">Brand</span>: {{response.productBrand}}</p>
+                        </div>
+                        <div class="row d-flex justify-content-center">
+                            <p class="details"><span style="font-weight: bold;">Category:</span> {{response.productCategory}}</p>
+                        </div>
+                        <div class="row d-flex justify-content-center">
+                            <p class="details"><span style="font-weight: bold;">Product:</span> {{response.productName}}</p>
+                        </div>
+                        <div class="row d-flex justify-content-center">
+                            <p class="details"><span style="font-weight: bold;">Model:</span> {{response.productModel}}</p>
+                        </div>
+                    </div>
+                    <div class="col col-4 imageview" style="text-align: center;">
+                        <img *ngIf="response.imagePath" src={{response.imagePath}} class="img-thumbnail">
+                        <img *ngIf="!response.imagePath" src='../../assets/img/default.png' class="img-thumbnail">
+                    </div>
+                </div>
+                <div class="row m-2" style="text-align: center;">
+                    <p>{{response.description}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ng-template>
