@@ -27,7 +27,7 @@
         "@fortawesome/fontawesome-free": "^5.13.0",
         "@ng-bootstrap/ng-bootstrap": "^4.0.2",
         "@types/chart.js": "^2.9.16",
-        "ajv": "6.7.0",
+        "ajv": "6.12.3",
         "ajv-keywords": "3.3.0",
         "angularx-social-login": "^2.2.1",
         "animate.css": "^3.7.2",
